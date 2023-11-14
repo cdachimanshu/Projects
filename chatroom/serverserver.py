@@ -8,6 +8,15 @@ ServerSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 ServerHost = "127.0.0.1"
 ServerPort = 8700
 
+# making the port as reusable port
+ServerSocket.setsockopt(socket.AF_INET, socket.SOCK_STREAM)
+
+# creating a set to store all connected client's sockets
+client_sockets = set()
+
+# a seperator to distinguish client name and message
+separator_token = "<<#>>"
+
 try:
     ServerSocket.bind((ServerHost, ServerPort))
 except socket.error as e:
@@ -54,15 +63,43 @@ def handle_client(conn):
             print("Connection denied: ", username)
 
     while True:
-        break
-    conn.close() # close the connection
+        try:
+            # keep listening for messages from the socket
+            msg = ServerSocket.recv(1024).decode()
+        except Exception as e:
+            # client no longer connected, then remove it from the set
+            print(f"[!!!] ERROR: {e}")
+            client_sockets.remove(ServerSocket)
+        else:
+            # if message is received, replace the the <<#>> token with ">>>" for printing
+            msg = msg.replace(separator_token, ">>> ")
+
+        # iterate over all connected sockets
+        for client_socket in client_sockets:
+            client_socket.send(msg.encode())
+
+    #conn.close() # close the connection
 
 # Accepting user connection
 while True:
     Client, address = ServerSocket.accept()
-    client_handler = threading.Thread(target=handle_client, args=(Client,))
+    print(f"[+] {Client} connected ....")
 
-    client_handler.start()
+    # add the new connected client to connected sockets
+    client_sockets.add(Client)
+
+    # start a new thread that listen for each client's messages
+    client_handler = threading.Thread(target=handle_client, args=(Client,))
     
-    print("Connection Request: " + str(ThreadCount))
+    # make the thread daemon so it ends whenever the main thread ends
+    client_handler.daemon = True
+
+    # starting the thread ...
+    client_handler.start() 
+
+# close client sockets
+for cs in client_sockets:
+    cs.close()
+
+# closing server socket    
 ServerSocket.close() # closing the socket
