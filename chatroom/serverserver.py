@@ -39,4 +39,30 @@ def handle_client(conn):
         HashTable[username]=password
         conn.send(str.encode("Registration Successfull..."))
         print("Registered: ", username)
-        print("{:<8} {:<20}" . format("
+        print("{:<8} {:<20}" . format("USER", "PASSWORD"))
+        for k,v in HashTable.items():
+            label, num = k, v
+            print("{:<8} {:<20}" . format(label, num))
+        print("*****************************************************")
+    else:
+        # if user already exist, check if the entered password is correct
+        if(HashTable[username] == password):
+            conn.send(str.encode("Connection successful...")) # responded to client
+            print("Connected: ", username)
+        else:
+            conn.send(str.encode("Login Failed....")) # respond if login fails
+            print("Connection denied: ", username)
+
+    while True:
+        break
+    conn.close() # close the connection
+
+# Accepting user connection
+while True:
+    Client, address = ServerSocket.accept()
+    client_handler = threading.Thread(target=handle_client, args=(Client,))
+
+    client_handler.start()
+    
+    print("Connection Request: " + str(ThreadCount))
+ServerSocket.close() # closing the socket
