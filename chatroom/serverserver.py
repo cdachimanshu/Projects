@@ -1,6 +1,6 @@
 import socket
 import os
-import threading
+import threading import Thread
 import hashlib
 
 # create a TCP connection
@@ -9,7 +9,7 @@ ServerHost = "127.0.0.1"
 ServerPort = 8700
 
 # making the port as reusable port
-ServerSocket.setsockopt(socket.AF_INET, socket.SOCK_STREAM)
+ServerSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
 # creating a set to store all connected client's sockets
 client_sockets = set()
@@ -22,7 +22,7 @@ try:
 except socket.error as e:
     print(str(e))
 
-
+print(f"[*] Server address: {ServerHost}:{ServerPort} ...")
 print("[***] WAITING for a Connection ...")
 ServerSocket.listen(5)
 
@@ -89,7 +89,7 @@ while True:
     client_sockets.add(Client)
 
     # start a new thread that listen for each client's messages
-    client_handler = threading.Thread(target=handle_client, args=(Client,))
+    client_handler = Thread(target=handle_client, args=(Client,))
     
     # make the thread daemon so it ends whenever the main thread ends
     client_handler.daemon = True
