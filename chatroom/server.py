@@ -1,3 +1,5 @@
+# server with no authentication
+
 import socket
 from threading import Thread
 
