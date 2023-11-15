@@ -24,7 +24,7 @@ s_ip = "10.252.7.59"
 #hostname = socket.gethostname()
 #s_ip = socket.gethostbyname(hostname)
 SERVER_PORT = 5002 # server's port
-separator_token = "<SEP>" # we will use this to separate the client name & message
+separator_token = "<<#>>" # we will use this to separate the client name & message
 
 # initialize TCP socket
 s = socket.socket()
