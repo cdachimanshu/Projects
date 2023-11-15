@@ -1,6 +1,8 @@
+# Chat server with Authentication
+
 import socket
 import os
-import threading import Thread
+from threading import Thread
 import hashlib
 
 # create a TCP connection
@@ -26,7 +28,7 @@ print(f"[*] Server address: {ServerHost}:{ServerPort} ...")
 print("[***] WAITING for a Connection ...")
 ServerSocket.listen(5)
 
-HashTable = {} # Dictionary to store the username and hashed password
+HashTable = {} # empty Dictionary to store the username and hashed password
 
 # Function for handling each client
 def handle_client(conn):
@@ -46,8 +48,9 @@ def handle_client(conn):
     # If new user, register and store their values in Dictionary
     if username not in HashTable:
         HashTable[username]=password
+        print(f" New user {username} created.")
         conn.send(str.encode("Registration Successfull..."))
-        print("Registered: ", username)
+        # print("Registered: ", username)
         print("{:<8} {:<20}" . format("USER", "PASSWORD"))
         for k,v in HashTable.items():
             label, num = k, v
@@ -56,16 +59,16 @@ def handle_client(conn):
     else:
         # if user already exist, check if the entered password is correct
         if(HashTable[username] == password):
-            conn.send(str.encode("Connection successful...")) # responded to client
+            conn.send(str.encode("[++] Connection successful...")) # responded to client
             print("Connected: ", username)
         else:
             conn.send(str.encode("Login Failed....")) # respond if login fails
-            print("Connection denied: ", username)
+            print("[--]Connection denied: ", username)
 
     while True:
         try:
             # keep listening for messages from the socket
-            msg = ServerSocket.recv(1024).decode()
+            msg = ServerSocket.recv(2048).decode()
         except Exception as e:
             # client no longer connected, then remove it from the set
             print(f"[!!!] ERROR: {e}")
